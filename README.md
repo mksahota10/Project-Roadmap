@@ -33,6 +33,6 @@ This Streamlit application leverages the power of AI and code analysis to automa
 
    
  2. Set API Keys: Obtain API keys for Toolhouse and OpenAI and replace the placeholders in the code.
- 
-Run the App:
- 3. streamlit run your_app_name.py
+
+ 3. Run the App:
+    streamlit run your_app_name.py
