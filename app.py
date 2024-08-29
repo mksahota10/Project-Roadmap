@@ -1,10 +1,10 @@
+import os
 import streamlit as st
-from toolhouse import Toolhouse, WebSearch, CodebaseAnalysis
+from toolhouse import Toolhouse
 from openai import OpenAI
+from dotenv import load_dotenv
 
-# Initialize clients (with API keys directly in the code - NOT RECOMMENDED for production)
-toolhouse = Toolhouse("c6a4a49c-e71f-404a-b101-255c8d1c502e")
-openai_client = OpenAI(api_key="sk-njwd4fUtgEvAKoo0HggIa1DRbkLBlJi7mAnT6Pb7EQT3BlbkFJJQL92nfNOrFsjjwuJuluCVFCVnjmegarLC8x0zQrsA")
+
 
 # Function to generate roadmap using LLM, codebase analysis, and web search
 def generate_roadmap(project_details, codebase_path=None):
