@@ -4,18 +4,47 @@ from toolhouse import Toolhouse
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# Load API keys from environment variables
+load_dotenv()  # Load environment variables from .env file
 
+
+# Retrieve API keys after loading the .env file
+openai_api_key = os.getenv("OPENAI_API_KEY")
+toolhouse_api_key = os.getenv("TOOLHOUSE_API_KEY") 
+
+# Check if the OpenAI API key was loaded successfully
+if openai_api_key is None:
+    st.error("OPENAI_API_KEY not found in .env file. Please make sure it's set correctly.")
+else:
+    # Initialize the OpenAI client
+    openai_client = OpenAI(api_key=openai_api_key)
+
+
+# Handle potential errors during OpenAI client initialization
+try:
+    # Initialize the OpenAI client
+    openai_client = OpenAI(api_key=openai_api_key)
+except Exception as e:
+    st.error(f"Error initializing OpenAI client: {e}")
+   
 
 # Function to generate roadmap using LLM, codebase analysis, and web search
 def generate_roadmap(project_details, codebase_path=None):
     # (1) Analyze codebase if provided
     code_analysis_results = "" 
     if codebase_path:
-        code_analysis_results = toolhouse.use_tool(
-            CodebaseAnalysis, 
-            repo_url=codebase_path,  # Or local_path if applicable
-            query="Summarize the main functionalities and components of the codebase"
-        )
+        # Initialize Toolhouse with your API key
+        th = Toolhouse(api_key=toolhouse_api_key)
+
+        # Get available tools and check if CodebaseAnalysis is present
+        available_tools = th.get_tools()
+        if "CodebaseAnalysis" in available_tools:
+            code_analysis_results = available_tools["CodebaseAnalysis"](
+                repo_url=codebase_path,
+                query="Summarize the main functionalities and components of the codebase"
+            )
+        else:
+            st.warning("CodebaseAnalysis tool not available in your Toolhouse plan.")
 
     # (2) Construct prompt incorporating codebase analysis (if available)
     prompt = f"""
@@ -45,8 +74,18 @@ def generate_roadmap(project_details, codebase_path=None):
     # (3) Optional: Use Web Search Tool to gather additional context (if needed)
     if not codebase_path and any(detail == "" for detail in project_details.values()):
         search_query = f"project roadmap for {project_details['name']} or similar projects"
-        search_results = toolhouse.use_tool(WebSearch, query=search_query)
-        prompt += f"\n\nWeb Search Results (for reference):\n{search_results}"
+
+        # Initialize Toolhouse (if not already initialized for codebase analysis)
+        if not codebase_path:
+            th = Toolhouse(api_key=toolhouse_api_key)
+
+        # Get available tools and check if WebSearch is present
+        available_tools = th.get_tools()
+        if "WebSearch" in available_tools:
+            search_results = available_tools["WebSearch"](query=search_query)
+            prompt += f"\n\nWeb Search Results (for reference):\n{search_results}"
+        else:
+            st.warning("WebSearch tool not available in your Toolhouse plan.")
 
     # (4) Call OpenAI
     response = openai_client.chat.completions.create(
