@@ -2,22 +2,10 @@ import os
 import streamlit as st
 from toolhouse import Toolhouse
 from openai import OpenAI
-from dotenv import load_dotenv
 
-# Load API keys from environment variables
-load_dotenv()  # Load environment variables from .env file
-
-
-# Retrieve API keys after loading the .env file
-openai_api_key = os.getenv("OPENAI_API_KEY")
-toolhouse_api_key = os.getenv("TOOLHOUSE_API_KEY") 
-
-# Check if the OpenAI API key was loaded successfully
-if openai_api_key is None:
-    st.error("OPENAI_API_KEY not found in .env file. Please make sure it's set correctly.")
-else:
-    # Initialize the OpenAI client
-    openai_client = OpenAI(api_key=openai_api_key)
+# API keys (replace with your actual keys)
+openai_api_key = "XXXXX"
+toolhouse_api_key = "XXXXXX" 
 
 
 # Handle potential errors during OpenAI client initialization
@@ -71,7 +59,7 @@ def generate_roadmap(project_details, codebase_path=None):
     Format the output clearly and concisely, potentially using markdown for better readability.
     """
 
-    # (3) Optional: Use Web Search Tool to gather additional context (if needed)
+    #  Use Web Search Tool to gather additional context (if needed)
     if not codebase_path and any(detail == "" for detail in project_details.values()):
         search_query = f"project roadmap for {project_details['name']} or similar projects"
 
